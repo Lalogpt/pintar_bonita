@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffe3ee">
+<title>Pintado con cariño</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:ital,wght@0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:'Montserrat',system-ui,sans-serif;color:#9a3e68;user-select:none;-webkit-user-select:none;
+ background:radial-gradient(ellipse at 50% 20%,#fff7fa,transparent 55%),linear-gradient(165deg,#ffeaf2,#ffd3e3 55%,#f8cbb9)}
+.stage{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px calc(env(safe-area-inset-bottom,0px) + 74px)}
+h1{margin:0;font:400 clamp(2.4rem,8vw,3.8rem)/1.1 'Great Vibes',cursive;background:linear-gradient(120deg,#a02f63,#f08ab1,#c44a7d);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .1em}
+#collage{position:relative;flex:1;width:100%;min-height:0}
+.frame{position:absolute;padding:8px;background:#fffdfb;border-radius:5px;box-shadow:0 14px 40px rgba(150,50,95,.28),0 2px 6px rgba(0,0,0,.08);
+ translate:-50% -50%;rotate:var(--r);opacity:0;transform:translateY(24px) scale(.94);transition:opacity .7s,transform .7s;cursor:pointer}
+.frame.in{opacity:1;transform:none}
+.frame canvas{display:block;background:#fff6f0}
+.frame .cap{margin:0;padding-top:6px;text-align:center;font:italic 300 .85rem/1.3 'Montserrat',sans-serif;color:#9a3e68}
+.frame .cap:empty{display:none}
+.brush{position:absolute;left:8px;top:8px;font-size:26px;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));transition:opacity .6s;translate:-6px -22px}
+.bar{position:fixed;z-index:5;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;justify-content:center}
+.bar button{border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#9a3e68;padding:10px 20px;border-radius:999px;font:500 .85rem 'Montserrat',sans-serif;cursor:pointer;box-shadow:0 5px 18px rgba(160,47,99,.15)}
+.bar button:focus-visible{outline:2px solid #c44a7d;outline-offset:2px}
+.petal{position:fixed;top:-30px;z-index:1;pointer-events:none;border-radius:60% 40% 60% 40%;animation:fall var(--du) linear forwards}
+@keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:0}12%{opacity:.8}50%{transform:translate(35px,55vh) rotate(200deg)}100%{transform:translate(-20px,108vh) rotate(420deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.petal{display:none}.frame{transition:none}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1 id="title"></h1>
+  <div id="collage"></div>
+</div>
+<div class="bar"><button id="again">↺ Volver a pintar</button></div>
+
+<script>
+/* ✏️ PERSONALIZA AQUÍ LAS RUTAS EXACTAS DE TUS ARCHIVOS */
+const TITULO = 'Para ti';
+const FOTOS = [
+  { src: 'WhatsApp Image 2026-11-09 at 5.28.37 PM.jpeg', txt: 'Recuerdo 1' },
+  { src: 'WhatsApp Image 2026-11-09 at 5.28.37 PM (1).jpeg', txt: 'Recuerdo 2' },
+  { src: 'WhatsApp Image 2026-11-09 at 5.28.37 PM (2).jpeg', txt: 'Recuerdo 3' }
+];
+const ESCALONADO = 1500; // ms entre el inicio de cada foto
+
+const $=id=>document.getElementById(id), rnd=(a,b)=>a+Math.random()*(b-a), sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const cl=v=>Math.max(0,Math.min(255,v))|0;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ROT=[-3,2.5,-1.5];
+$('title').textContent=TITULO;
+
+const P=FOTOS.map((f,i)=>{
+  const fr=document.createElement('div'); fr.className='frame'; fr.style.setProperty('--r',ROT[i%ROT.length]+'deg');
+  const cv=document.createElement('canvas'), br=document.createElement('div'), cap=document.createElement('p');
+  br.className='brush'; br.textContent='🖌️'; cap.className='cap'; cap.textContent=f.txt||'';
+  fr.append(cv,br,cap); $('collage').appendChild(fr);
+  const p={i,src:f.src,fr,cv,ctx:cv.getContext('2d'),br,cap,run:0,img:null,cell:null};
+  fr.onclick=()=>paint(p,0);
+  return p;
+});
+
+function loadImg(p){
+  if(!p.loading)p.loading=new Promise((ok,no)=>{
+    const im=new Image(); im.onload=()=>ok(im); im.onerror=()=>no(new Error('No se pudo cargar '+p.src));
+    im.src=encodeURI(p.src);
+  });
+  return p.loading;
+}
+
+function layout(){
+  const W=$('collage').clientWidth, H=$('collage').clientHeight, n=P.length;
+  const wide=W>H*1.1;
+  P.forEach((p,i)=>{
+    let x,y,w,h;
+    if(wide){w=W/n;h=H;x=w*i;y=0}
+    else if(n===3){
+      if(i===0){w=W;h=H*.5;x=0;y=0}
+      else{w=W/2;h=H*.5;x=w*(i-1);y=H*.5}
+    }else{w=W;h=H/n;x=0;y=h*i}
+    p.cell={cx:x+w/2,cy:y+h/2,w:w-18,h:h-18};
+  });
+}
+
+function sizeCanvas(p){
+  const pad=16+(p.cap.textContent?26:0), c=p.cell, iw=p.img.width, ih=p.img.height;
+  const sc=Math.min((c.w*.94-16)/iw,(c.h*.94-pad)/ih);
+  p.cw=Math.max(40,Math.round(iw*sc)); p.ch=Math.max(40,Math.round(ih*sc));
+  p.dpr=Math.min(devicePixelRatio||1,2);
+  p.cv.width=p.cw*p.dpr; p.cv.height=p.ch*p.dpr; p.cv.style.width=p.cw+'px'; p.cv.style.height=p.ch+'px';
+  p.ctx.setTransform(p.dpr,0,0,p.dpr,0,0);
+  p.fr.style.left=c.cx+'px'; p.fr.style.top=c.cy+'px';
+  p.off=document.createElement('canvas'); p.off.width=p.cv.width; p.off.height=p.cv.height;
+  p.off.getContext('2d').drawImage(p.img,0,0,p.off.width,p.off.height);
+}
+
+function analyze(p){
+  try{
+    p.gw=Math.min(p.cw,520); p.gs=p.gw/p.cw; p.gh=Math.max(2,Math.round(p.ch*p.gs));
+    const s=document.createElement('canvas'); s.width=p.gw; s.height=p.gh;
+    const sx=s.getContext('2d',{willReadFrequently:true}); sx.drawImage(p.off,0,0,p.gw,p.gh);
+    p.data=sx.getImageData(0,0,p.gw,p.gh).data;
+  }catch(e){return false}
+  const {gw,gh,data}=p, L=new Float32Array(gw*gh);
+  for(let i=0;i<L.length;i++)L[i]=.3*data[i*4]+.59*data[i*4+1]+.11*data[i*4+2];
+  p.ang=new Float32Array(gw*gh); p.mag=new Float32Array(gw*gh);
+  for(let y=1;y<gh-1;y++)for(let x=1;x<gw-1;x++){
+    const i=y*gw+x, gx=L[i+1]-L[i-1]+.5*(L[i-gw+1]-L[i-gw-1]+L[i+gw+1]-L[i+gw-1]),
+          gy=L[i+gw]-L[i-gw]+.5*(L[i+gw-1]-L[i-gw-1]+L[i+gw+1]-L[i-gw+1]);
+    p.mag[i]=Math.hypot(gx,gy); p.ang[i]=Math.atan2(gy,gx)+Math.PI/2;
+  }
+  return true;
+}
+
+const gi=(p,x,y)=>Math.min(p.gh-1,y*p.gs|0)*p.gw+Math.min(p.gw-1,x*p.gs|0);
+function stroke(p,x,y,len,w,a,angle){
+  const j=gi(p,x,y)*4, d=p.data, c=p.ctx;
+  c.strokeStyle=`rgba(${cl(d[j]+rnd(-9,9))},${cl(d[j+1]+rnd(-9,9))},${cl(d[j+2]+rnd(-9,9))},${a})`;
+  c.lineWidth=w; c.lineCap='round';
+  const dx=Math.cos(angle)*len/2, dy=Math.sin(angle)*len/2, b=rnd(-.25,.25)*len;
+  c.beginPath(); c.moveTo(x-dx,y-dy);
+  c.quadraticCurveTo(x-Math.sin(angle)*b,y+Math.cos(angle)*b,x+dx,y+dy); c.stroke();
+}
+function pickAt(p,L){
+  let x=rnd(0,p.cw),y=rnd(0,p.ch);
+  if(L.edge){for(let k=0;k<5;k++){const x2=rnd(0,p.cw),y2=rnd(0,p.ch);
+    if(p.mag[gi(p,x2,y2)]>p.mag[gi(p,x,y)]){x=x2;y=y2}}}
+  const i=gi(p,x,y);
+  const a=L.edge&&p.mag[i]>25?p.ang[i]+rnd(-.3,.3):.8+rnd(-.6,.6);
+  stroke(p,x,y,L.l*rnd(.7,1.3),L.w*rnd(.8,1.2),L.a,a);
+  return [x,y];
+}
+
+async function paint(p,delay){
+  const id=++p.run;
+  p.fr.classList.remove('in');
+  await sleep(delay); if(id!==p.run)return;
+  try{p.img=await loadImg(p)}catch(e){p.cap.textContent=e.message;p.fr.classList.add('in');return}
+  if(id!==p.run)return;
+  sizeCanvas(p);
+  const {ctx,cw,ch}=p;
+  ctx.fillStyle='#fff6f0'; ctx.fillRect(0,0,cw,ch);
+  p.br.style.opacity=1; void p.fr.offsetWidth; p.fr.classList.add('in');
+  if(reduce||!analyze(p)){ctx.drawImage(p.off,0,0,cw,ch);p.br.style.opacity=0;return}
+
+  const A=cw*ch, layers=[
+   {w:34,l:52,a:.8,edge:0,dur:3,n:A/(34*52)*1.8},
+   {w:14,l:26,a:.85,edge:1,dur:4.5,n:A/(14*26)*1.9},
+   {w:6,l:13,a:.9,edge:1,dur:6,n:A/(6*13)*1.7},
+   {w:3,l:8,a:.92,edge:1,dur:3.5,n:A/(3*8)*.45}];
+  let li=0,done=0,t0=performance.now(),fade=0;
+  (function frame(now){
+    if(id!==p.run)return;
+    if(li<layers.length){
+      const L=layers[li], target=Math.min(L.n,L.n*((now-t0)/1000/L.dur));
+      let pt=null; while(done<target){pt=pickAt(p,L);done++}
+      if(pt)p.br.style.transform=`translate(${pt[0]+8}px,${pt[1]+8}px)`;
+      if(done>=L.n){li++;done=0;t0=now}
+    }else if(fade<60){
+      ctx.globalAlpha=.08; ctx.drawImage(p.off,0,0,cw,ch); ctx.globalAlpha=1; fade++;
+      p.br.style.opacity=Math.max(0,1-fade/30);
+    }else{ctx.drawImage(p.off,0,0,cw,ch);p.br.style.opacity=0;return}
+    requestAnimationFrame(frame);
+  })(performance.now());
+}
+
+function paintAll(){layout();P.forEach((p,i)=>paint(p,i*ESCALONADO))}
+$('again').onclick=paintAll;
+addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(paintAll,350)});
+
+const cols=[['#ffd1e1','#ff7aa9'],['#fff0f5','#ffb1c9'],['#ffe0c4','#ff9b73']];
+setInterval(()=>{
+  if(document.querySelectorAll('.petal').length>=12)return;
+  const c=cols[Math.floor(Math.random()*cols.length)],w=rnd(9,16),e=document.createElement('div');
+  e.className='petal';e.style.cssText=`left:${rnd(0,100)}vw;width:${w}px;height:${w*1.5}px;background:linear-gradient(135deg,${c[0]},${c[1]});--du:${rnd(9,15)}s`;
+  document.body.appendChild(e);setTimeout(()=>e.remove(),15500);
+},1000);
+
+paintAll();
+</script>
+</body>
+</html>

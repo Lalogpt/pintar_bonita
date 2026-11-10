@@ -11,18 +11,16 @@
 html,body{margin:0;height:100%;overflow:hidden}
 body{font-family:'Montserrat',system-ui,sans-serif;color:#9a3e68;user-select:none;-webkit-user-select:none;
  background:radial-gradient(ellipse at 50% 20%,#fff7fa,transparent 55%),linear-gradient(165deg,#ffeaf2,#ffd3e3 55%,#f8cbb9)}
-.stage{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 68px);overflow-y:auto}
-h1{margin:0 0 4px 0;font:400 clamp(2.2rem,6vw,3.4rem)/1.1 'Great Vibes',cursive;background:linear-gradient(120deg,#a02f63,#f08ab1,#c44a7d);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .1em;text-align:center}
-#collage{position:relative;flex:1;width:100%;min-height:300px}
-.frame{position:absolute;padding:6px;background:#fffdfb;border-radius:5px;box-shadow:0 12px 35px rgba(150,50,95,.26),0 2px 6px rgba(0,0,0,.08);
- translate:-50% -50%;rotate:var(--r);opacity:0;transform:translateY(24px) scale(.94);transition:opacity .7s,transform .7s;cursor:pointer}
+.stage{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 68px);overflow:hidden}
+h1{margin:0 0 2px 0;font:400 clamp(2rem,5vw,3rem)/1.1 'Great Vibes',cursive;background:linear-gradient(120deg,#a02f63,#f08ab1,#c44a7d);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .1em;text-align:center}
+#collage{position:relative;flex:1;width:100%;min-height:0}
+.frame{position:absolute;padding:5px;background:#fffdfb;border-radius:4px;box-shadow:0 10px 30px rgba(150,50,95,.24),0 2px 5px rgba(0,0,0,.06);
+ translate:-50% -50%;rotate:var(--r);opacity:0;transform:translateY(20px) scale(.95);transition:opacity .5s,transform .5s;cursor:pointer}
 .frame.in{opacity:1;transform:none}
 .frame canvas{display:block;background:#fff6f0}
-.frame .cap{margin:0;padding-top:4px;text-align:center;font:italic 300 .75rem/1.2 'Montserrat',sans-serif;color:#9a3e68}
-.frame .cap:empty{display:none}
-.brush{position:absolute;left:8px;top:8px;font-size:24px;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));transition:opacity .6s;translate:-6px -22px}
-.bar{position:fixed;z-index:5;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;justify-content:center}
-.bar button{border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#9a3e68;padding:8px 18px;border-radius:999px;font:500 .85rem 'Montserrat',sans-serif;cursor:pointer;box-shadow:0 5px 18px rgba(160,47,99,.15)}
+.brush{position:absolute;left:8px;top:8px;font-size:22px;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));transition:opacity .4s;translate:-6px -22px}
+.bar{position:fixed;z-index:5;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);display:flex;justify-content:center}
+.bar button{border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#9a3e68;padding:8px 18px;border-radius:999px;font:500 .8rem 'Montserrat',sans-serif;cursor:pointer;box-shadow:0 4px 15px rgba(160,47,99,.15)}
 .bar button:focus-visible{outline:2px solid #c44a7d;outline-offset:2px}
 .petal{position:fixed;top:-30px;z-index:1;pointer-events:none;border-radius:60% 40% 60% 40%;animation:fall var(--du) linear forwards}
 @keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:0}12%{opacity:.8}50%{transform:translate(35px,55vh) rotate(200deg)}100%{transform:translate(-20px,108vh) rotate(420deg);opacity:0}}
@@ -37,30 +35,30 @@ h1{margin:0 0 4px 0;font:400 clamp(2.2rem,6vw,3.4rem)/1.1 'Great Vibes',cursive;
 <div class="bar"><button id="again">↺ Volver a pintar</button></div>
 
 <script>
-/* ✏️ FOTOS ACTUALIZADAS (6 en total) */
-const TITULO = 'Para ti con mucho cariño';
+/* ✏️ FOTOS (Sin leyendas para mayor espacio y limpieza) */
+const TITULO = 'Para ti con todo mi amor';
 const FOTOS = [
-  { src: 'WhatsApp Image 2026-11-09 at 5.22.49 PM.jpeg', txt: 'Momento especial' },
-  { src: 'WhatsApp Image 2026-11-09 at 5.28.37 PM.jpeg', txt: 'Recuerdo 1' },
-  { src: 'WhatsApp Image 2026-11-09 at 5.28.37 PM (1).jpeg', txt: 'Recuerdo 2' },
-  { src: 'WhatsApp Image 2026-11-09 at 5.28.37 PM (2).jpeg', txt: 'Recuerdo 3' },
-  { src: 'WhatsApp Image 2026-11-09 at 5.50.54 PM.jpeg', txt: 'Instante único' },
-  { src: 'WhatsApp Image 2026-11-09 at 5.50.54 PM (1).jpeg', txt: 'Juntos' }
+  { src: 'WhatsApp Image 2026-11-09 at 5.22.49 PM.jpeg' },
+  { src: 'WhatsApp Image 2026-11-09 at 5.28.37 PM.jpeg' },
+  { src: 'WhatsApp Image 2026-11-09 at 5.28.37 PM (1).jpeg' },
+  { src: 'WhatsApp Image 2026-11-09 at 5.28.37 PM (2).jpeg' },
+  { src: 'WhatsApp Image 2026-11-09 at 5.50.54 PM.jpeg' },
+  { src: 'WhatsApp Image 2026-11-09 at 5.50.54 PM (1).jpeg' }
 ];
-const ESCALONADO = 1200; // ms entre el inicio de cada foto
+const ESCALONADO = 800; // Inicio más rápido entre fotos
 
 const $=id=>document.getElementById(id), rnd=(a,b)=>a+Math.random()*(b-a), sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const cl=v=>Math.max(0,Math.min(255,v))|0;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const ROT=[-2.5, 2, -1.5, 3, -2, 1.5];
+const ROT=[-2, 1.8, -1.5, 2.2, -1.8, 1.5];
 $('title').textContent=TITULO;
 
 const P=FOTOS.map((f,i)=>{
   const fr=document.createElement('div'); fr.className='frame'; fr.style.setProperty('--r',ROT[i%ROT.length]+'deg');
-  const cv=document.createElement('canvas'), br=document.createElement('div'), cap=document.createElement('p');
-  br.className='brush'; br.textContent='🖌️'; cap.className='cap'; cap.textContent=f.txt||'';
-  fr.append(cv,br,cap); $('collage').appendChild(fr);
-  const p={i,src:f.src,fr,cv,ctx:cv.getContext('2d'),br,cap,run:0,img:null,cell:null};
+  const cv=document.createElement('canvas'), br=document.createElement('div');
+  br.className='brush'; br.textContent='🖌️';
+  fr.append(cv,br); $('collage').appendChild(fr);
+  const p={i,src:f.src,fr,cv,ctx:cv.getContext('2d'),br,run:0,img:null,cell:null};
   fr.onclick=()=>paint(p,0);
   return p;
 });
@@ -73,7 +71,7 @@ function loadImg(p){
   return p.loading;
 }
 
-/* Distribución automática en cuadrícula de 3x2 o adaptativa para 6 fotos */
+/* Diseño adaptado en cuadrícula 3x2 (o 2x3 según pantalla) optimizado */
 function layout(){
   const W=$('collage').clientWidth, H=$('collage').clientHeight, n=P.length;
   const wide=W>H*1.1;
@@ -84,14 +82,14 @@ function layout(){
   P.forEach((p,i)=>{
     const col = i % cols;
     const row = Math.floor(i / cols);
-    p.cell={cx:w*(col+.5),cy:h*(row+.5),w:w-14,h:h-14};
+    p.cell={cx:w*(col+.5),cy:h*(row+.5),w:w-10,h:h-10};
   });
 }
 
 function sizeCanvas(p){
-  const pad=14+(p.cap.textContent?22:0), c=p.cell, iw=p.img.width, ih=p.img.height;
-  const sc=Math.min((c.w*.92-12)/iw,(c.h*.92-pad)/ih);
-  p.cw=Math.max(35,Math.round(iw*sc)); p.ch=Math.max(35,Math.round(ih*sc));
+  const c=p.cell, iw=p.img.width, ih=p.img.height;
+  const sc=Math.min((c.w*.96)/iw,(c.h*.96)/ih);
+  p.cw=Math.max(30,Math.round(iw*sc)); p.ch=Math.max(30,Math.round(ih*sc));
   p.dpr=Math.min(devicePixelRatio||1,2);
   p.cv.width=p.cw*p.dpr; p.cv.height=p.ch*p.dpr; p.cv.style.width=p.cw+'px'; p.cv.style.height=p.ch+'px';
   p.ctx.setTransform(p.dpr,0,0,p.dpr,0,0);
@@ -102,7 +100,7 @@ function sizeCanvas(p){
 
 function analyze(p){
   try{
-    p.gw=Math.min(p.cw,520); p.gs=p.gw/p.cw; p.gh=Math.max(2,Math.round(p.ch*p.gs));
+    p.gw=Math.min(p.cw,220); p.gs=p.gw/p.cw; p.gh=Math.max(2,Math.round(p.ch*p.gs));
     const s=document.createElement('canvas'); s.width=p.gw; s.height=p.gh;
     const sx=s.getContext('2d',{willReadFrequently:true}); sx.drawImage(p.off,0,0,p.gw,p.gh);
     p.data=sx.getImageData(0,0,p.gw,p.gh).data;
@@ -121,19 +119,18 @@ function analyze(p){
 const gi=(p,x,y)=>Math.min(p.gh-1,y*p.gs|0)*p.gw+Math.min(p.gw-1,x*p.gs|0);
 function stroke(p,x,y,len,w,a,angle){
   const j=gi(p,x,y)*4, d=p.data, c=p.ctx;
-  c.strokeStyle=`rgba(${cl(d[j]+rnd(-9,9))},${cl(d[j+1]+rnd(-9,9))},${cl(d[j+2]+rnd(-9,9))},${a})`;
+  c.strokeStyle=`rgba(${cl(d[j]+rnd(-6,6))},${cl(d[j+1]+rnd(-6,6))},${cl(d[j+2]+rnd(-6,6))},${a})`;
   c.lineWidth=w; c.lineCap='round';
-  const dx=Math.cos(angle)*len/2, dy=Math.sin(angle)*len/2, b=rnd(-.25,.25)*len;
-  c.beginPath(); c.moveTo(x-dx,y-dy);
-  c.quadraticCurveTo(x-Math.sin(angle)*b,y+Math.cos(angle)*b,x+dx,y+dy); c.stroke();
+  const dx=Math.cos(angle)*len/2, dy=Math.sin(angle)*len/2;
+  c.beginPath(); c.moveTo(x-dx,y-dy); c.lineTo(x+dx,y+dy); c.stroke();
 }
 function pickAt(p,L){
   let x=rnd(0,p.cw),y=rnd(0,p.ch);
-  if(L.edge){for(let k=0;k<5;k++){const x2=rnd(0,p.cw),y2=rnd(0,p.ch);
+  if(L.edge){for(let k=0;k<3;k++){const x2=rnd(0,p.cw),y2=rnd(0,p.ch);
     if(p.mag[gi(p,x2,y2)]>p.mag[gi(p,x,y)]){x=x2;y=y2}}}
   const i=gi(p,x,y);
-  const a=L.edge&&p.mag[i]>25?p.ang[i]+rnd(-.3,.3):.8+rnd(-.6,.6);
-  stroke(p,x,y,L.l*rnd(.7,1.3),L.w*rnd(.8,1.2),L.a,a);
+  const a=L.edge&&p.mag[i]>20?p.ang[i]+rnd(-.2,.2):.85;
+  stroke(p,x,y,L.l,L.w,L.a,a);
   return [x,y];
 }
 
@@ -141,7 +138,7 @@ async function paint(p,delay){
   const id=++p.run;
   p.fr.classList.remove('in');
   await sleep(delay); if(id!==p.run)return;
-  try{p.img=await loadImg(p)}catch(e){p.cap.textContent=e.message;p.fr.classList.add('in');return}
+  try{p.img=await loadImg(p)}catch(e){p.fr.classList.add('in');return}
   if(id!==p.run)return;
   sizeCanvas(p);
   const {ctx,cw,ch}=p;
@@ -149,22 +146,23 @@ async function paint(p,delay){
   p.br.style.opacity=1; void p.fr.offsetWidth; p.fr.classList.add('in');
   if(reduce||!analyze(p)){ctx.drawImage(p.off,0,0,cw,ch);p.br.style.opacity=0;return}
 
+  /* Capras más ligeras y rápidas para fluidez total en celular */
   const A=cw*ch, layers=[
-   {w:28,l:44,a:.8,edge:0,dur:2.2,n:A/(28*44)*1.6},
-   {w:12,l:22,a:.85,edge:1,dur:3,n:A/(12*22)*1.7},
-   {w:5,l:11,a:.9,edge:1,dur:4,n:A/(5*11)*1.5},
-   {w:2.5,l:7,a:.92,edge:1,dur:2.5,n:A/(2.5*7)*.4}];
+   {w:24,l:38,a:.85,edge:0,dur:1.2,n:A/(24*38)*1.1},
+   {w:10,l:18,a:.9,edge:1,dur:1.5,n:A/(10*18)*1.2},
+   {w:4,l:9,a:.95,edge:1,dur:1.5,n:A/(4*9)*.6}
+  ];
   let li=0,done=0,t0=performance.now(),fade=0;
   (function frame(now){
     if(id!==p.run)return;
     if(li<layers.length){
       const L=layers[li], target=Math.min(L.n,L.n*((now-t0)/1000/L.dur));
       let pt=null; while(done<target){pt=pickAt(p,L);done++}
-      if(pt)p.br.style.transform=`translate(${pt[0]+6}px,${pt[1]+6}px)`;
+      if(pt)p.br.style.transform=`translate(${pt[0]+4}px,${pt[1]+4}px)`;
       if(done>=L.n){li++;done=0;t0=now}
-    }else if(fade<45){
-      ctx.globalAlpha=.1; ctx.drawImage(p.off,0,0,cw,ch); ctx.globalAlpha=1; fade++;
-      p.br.style.opacity=Math.max(0,1-fade/22);
+    }else if(fade<20){
+      ctx.globalAlpha=.2; ctx.drawImage(p.off,0,0,cw,ch); ctx.globalAlpha=1; fade++;
+      p.br.style.opacity=Math.max(0,1-fade/10);
     }else{ctx.drawImage(p.off,0,0,cw,ch);p.br.style.opacity=0;return}
     requestAnimationFrame(frame);
   })(performance.now());
@@ -172,15 +170,15 @@ async function paint(p,delay){
 
 function paintAll(){layout();P.forEach((p,i)=>paint(p,i*ESCALONADO))}
 $('again').onclick=paintAll;
-addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(paintAll,350)});
+addEventListener('resize',()=>{clearTimeout(window._r);window._r=setTimeout(paintAll,300)});
 
 const cols=[['#ffd1e1','#ff7aa9'],['#fff0f5','#ffb1c9'],['#ffe0c4','#ff9b73']];
 setInterval(()=>{
-  if(document.querySelectorAll('.petal').length>=10)return;
-  const c=cols[Math.floor(Math.random()*cols.length)],w=rnd(8,14),e=document.createElement('div');
-  e.className='petal';e.style.cssText=`left:${rnd(0,100)}vw;width:${w}px;height:${w*1.5}px;background:linear-gradient(135deg,${c[0]},${c[1]});--du:${rnd(9,14)}s`;
-  document.body.appendChild(e);setTimeout(()=>e.remove(),14500);
-},1200);
+  if(document.querySelectorAll('.petal').length>=8)return;
+  const c=cols[Math.floor(Math.random()*cols.length)],w=rnd(8,13),e=document.createElement('div');
+  e.className='petal';e.style.cssText=`left:${rnd(0,100)}vw;width:${w}px;height:${w*1.5}px;background:linear-gradient(135deg,${c[0]},${c[1]});--du:${rnd(8,12)}s`;
+  document.body.appendChild(e);setTimeout(()=>e.remove(),12500);
+},1500);
 
 paintAll();
 </script>
